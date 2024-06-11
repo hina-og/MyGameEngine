@@ -65,12 +65,9 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPSTR lpCmdLine, 
 		return 0;
 	}
 
-	
+	Camera::Initialize();
 
 	Quad* q = new Quad;
-	q->Initialize();
-
-	Camera::Initialize();
 
 	//メッセージループ（何か起きるのを待つ）
 	MSG msg;
@@ -118,7 +115,6 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPSTR lpCmdLine, 
 		}
 	}
 
-	q->Release();
 	SAFE_DELETE(q);
 	Direct3D::Release();
 
