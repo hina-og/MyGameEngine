@@ -25,6 +25,23 @@ void GameObject::UpdateSub()
 	{
 		itr->UpdateSub();
 	}
+
+	for (auto itr = childList_.begin(); itr != childList_.end(); )
+	{
+		if ((*itr)->isDead_)
+		{
+			(*itr)->ReleaseSub();
+			//(*itr)->Release();
+			SAFE_DELETE(*itr);
+			itr = childList_.erase(itr);
+		}
+		else
+		{
+			itr++;
+		}
+
+	}
+
 }
 
 void GameObject::DrawSub()
@@ -110,7 +127,7 @@ void GameObject::RoundRobin(GameObject* pTarget)
 	//自分とターゲットの当たり判定
 	if (this->pCollider_ == nullptr)
 		return;
-	if(pTarget->pCollider_ == nullptr)
+	if(pTarget->pCollider_ != nullptr)
 		Collision(pTarget);
 	//自分とターゲットの子オブジェクト全部の当たり判定
 	for (auto& itr : pTarget->childList_)

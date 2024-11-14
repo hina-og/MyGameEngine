@@ -1,6 +1,7 @@
 #include "FBX.h"
 #include "Camera.h"
 #include <filesystem>
+#include <DirectXCollision.h>
 
 namespace fs = std::filesystem;
 
@@ -290,4 +291,42 @@ void FBX::Draw(Transform& transform)
 
 void FBX::Release()
 {
+}
+
+void FBX::RayCast(RayCastData& rayData, Transform& transform)
+{
+	transform.Calculation();
+	XMMATRIX invWorld = XMMatrixInverse(nullptr, transform.GetWorldMatrix());
+
+	XMVECTOR start = XMLoadFloat4(&rayData.start);
+	XMVECTOR dir = XMLoadFloat4(&rayData.dir);
+	dir = XMVector3Normalize(dir);
+
+	XMVECTOR end = start + dir;
+
+	start = XMVector3TransformCoord(start, invWorld);
+	end = XMVector3TransformCoord(end, invWorld);
+	dir = end - start;
+
+	for (int material = 0; material < materialCount_; material++)
+	{
+		for (int pory = 0; pory < indexCount_[material] / 3; pory++)
+		{
+			XMVECTOR v0 = vertices[index[material][pory * 3 + 0]].position;
+			XMVECTOR v1 = vertices[index[material][pory * 3 + 1]].position;
+			XMVECTOR v2 = vertices[index[material][pory * 3 + 2]].position;
+
+			/*v0 = XMVector3TransformCoord(v0, transform.GetWorldMatrix());
+			v1 = XMVector3TransformCoord(v1, transform.GetWorldMatrix());
+			v2 = XMVector3TransformCoord(v2, transform.GetWorldMatrix());*/
+
+			rayData.hit = TriangleTests::Intersects(start, dir, v0, v1, v2, rayData.dist);
+
+
+			if (rayData.hit)
+			{
+				return;
+			}
+		}
+	}
 }
